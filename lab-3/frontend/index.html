@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOSTÜ Sınav Programı Yönetim Sistemi</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-animation" id="particles"></div>
+    
+    <!-- ==================== LOGIN EKRANI ==================== -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-university"></i>
+            </div>
+            <h1 class="login-title">KOSTÜ</h1>
+            <p class="login-subtitle">Sınav Programı Yönetim Sistemi</p>
+            
+            <div style="background: #f0fdf4; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: #166534;">
+                <strong>Demo Hesapları:</strong><br>
+                admin / admin123 | bolum / bolum123 | hoca / hoca123 | ogrenci / ogrenci123
+            </div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Kullanıcı Adı</label>
+                    <input type="text" id="username" placeholder="admin, bolum, hoca, ogrenci..." required>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Şifre</label>
+                    <input type="password" id="password" placeholder="Şifre" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Giriş Yap
+                </button>
+            </form>
+            
+            <div id="loginMessage" class="login-message"></div>
+        </div>
+    </div>
+    
+    <!-- ==================== ANA EKRAN ==================== -->
+    <div id="mainContainer" class="main-container" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <h1 class="main-title">
+                    <i class="fas fa-calendar-check"></i> KOSTÜ Sınav Programı
+                </h1>
+                <div class="header-right">
+                    <span id="currentUsername" style="margin-right: 20px; color: white; font-size: 14px;"></span>
+                    <button id="logoutBtn" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Çıkış
+                    </button>
+                </div>
+            </div>
+            <div class="status-bar">
+                <span id="statusIndicator" class="status-indicator status-unhealthy"></span>
+                <span id="statusText">Bağlantı kontrol ediliyor...</span>
+            </div>
+        </div>
+
+        <div class="container">
+            <div id="messageArea"></div>
+
+            <!-- ==================== ADMIN PANELİ ==================== -->
+            <div id="adminPanel" class="panel" style="display: none;">
+                <h2 class="panel-title"><i class="fas fa-cog"></i> Admin Paneli</h2>
+                
+                <!-- Öğretim Üyeleri -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-chalkboard-teacher"></i> Öğretim Üyeleri</h3>
+                    <form id="teacherForm" class="form">
+                        <input type="text" id="teacherName" placeholder="Adı Soyadı" required>
+                        <select id="teacherDepartment">
+                            <option value="">-- Fakülte Seç --</option>
+                        </select>
+                        <input type="text" id="teacherDays" placeholder="Müsait Günler (Mon,Tue,Wed,Thu,Fri)" value="Mon,Tue,Wed,Thu,Fri">
+                        <button type="submit" class="btn btn-primary">Ekle</button>
+                    </form>
+                    <div class="teachers-filter-container">
+                        <input type="text" id="teachersSearchInput" class="search-input" placeholder="🔍 Hoca ara (isim, unvan, fakülte)...">
+                    </div>
+                    <div id="teachersList" class="teachers-grid"></div>
+                    <div id="teachersPagination" class="pagination"></div>
+                </div>
+
+                <!-- Derslikler -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-door-open"></i> Derslikler</h3>
+                    <form id="classroomForm" class="form">
+                        <input type="text" id="classroomName" placeholder="Derslik Adı (D101, A205 vb.)" required>
+                        <input type="number" id="classroomCapacity" placeholder="Kapasite" required>
+                        <button type="submit" class="btn btn-primary">Ekle</button>
+                    </form>
+                    <div class="classrooms-filter-container">
+                        <input type="text" id="classroomsSearchInput" class="search-input" placeholder="🔍 Derslik ara (adı, kapasite)...">
+                    </div>
+                    <div id="classroomsList" class="items-grid"></div>
+                    <div id="classroomsPagination" class="pagination"></div>
+                </div>
+
+                <!-- Dersler -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-book"></i> Dersler</h3>
+                    <form id="courseForm" class="form">
+                        <input type="text" id="courseName" placeholder="Ders Adı" required>
+                        <input type="text" id="courseCodeInput" placeholder="Ders Kodu (YZM332 vb.)">
+                        <select id="courseDepartment">
+                            <option value="">-- Fakülte Seç --</option>
+                        </select>
+                        <select id="courseTeacher">
+                            <option value="">-- Öğretim Üyesi Seç --</option>
+                        </select>
+                        <input type="number" id="courseStudentCount" placeholder="Öğrenci Sayısı" value="30">
+                        <select id="courseExamDuration">
+                            <option value="30">30 dakika</option>
+                            <option value="60" selected>60 dakika</option>
+                            <option value="90">90 dakika</option>
+                            <option value="120">120 dakika</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Ekle</button>
+                    </form>
+                    <div class="courses-filter-container">
+                        <input type="text" id="coursesSearchInput" class="search-input" placeholder="🔍 Ders ara (adı, kodu, hoca)...">
+                    </div>
+                    <div id="coursesList" class="items-grid"></div>
+                    <div id="coursesPagination" class="pagination"></div>
+                </div>
+
+                <!-- Excel Yükleme -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-file-excel"></i> Sınıf Listesi Yükle</h3>
+                        <form id="excelUploadForm" class="form" style="margin-bottom:16px;">
+                            <div class="form-group">
+                                <label for="excelFile">Tek Dosya Yükle (Sınıf Listesi)</label>
+                                <input id="excelFile" type="file" accept=".xlsx,.xls" />
+                            </div>
+                            <div class="form-group">
+                                <label for="excelCourseCode">Ders Kodu (opsiyonel)</label>
+                                <input id="excelCourseCode" type="text" placeholder="Örn: YZM332" />
+                            </div>
+                            <button class="submit-btn" type="submit">Tek Dosya Yükle</button>
+                        </form>
+                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:260px;">
+                                <label for="classlistFolderInput" class="form-label">📁 Klasör Seç (Excel Dosyaları)</label>
+                                <small style="display:block; color:#666; font-size:11px; margin-bottom:4px;">Klasör seçtiğinizde tarayıcı içindeki tüm Excel dosyaları listelenecektir</small>
+                                <input id="classlistFolderInput" type="file" webkitdirectory directory multiple accept=".xlsx,.xls" style="margin-bottom:8px;" />
+                                <button id="importClasslistsBtn" class="submit-btn" style="width:100%;"><i class="fa-solid fa-folder-open"></i> Klasörden Sınıf Listelerini İçe Aktar</button>
+                            </div>
+                            <div style="flex:1; min-width:260px;">
+                                <label for="proximityFileInput" class="form-label">Derslik Yakınlık Dosyası Seç</label>
+                                <input id="proximityFileInput" type="file" accept=".xlsx,.xls" style="margin-bottom:8px;" />
+                                <button id="importProximityBtn" class="submit-btn" style="width:100%;"><i class="fa-solid fa-sitemap"></i> Derslik Yakınlıklarını İçe Aktar</button>
+                            </div>
+                        </div>
+                        <div style="margin-top:16px;">
+                            <label for="capacityFileInput" class="form-label">Sınav Kapasiteleri Dosyası Seç</label>
+                            <input id="capacityFileInput" type="file" accept=".xlsx,.xls" style="margin-bottom:8px;" />
+                            <button id="importCapacityBtn" class="submit-btn" style="width:100%;"><i class="fa-solid fa-upload"></i> Kapasite Bilgilerini İçe Aktar</button>
+                        </div>
+
+                        <div style="margin-top:16px; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                            <label for="teachersFileInput" class="form-label"><i class="fas fa-chalkboard-user"></i> Akademik Kadro Dosyası</label>
+                            <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">akademik_kadro.xlsx dosyasından öğretim üyelerini sisteme aktarın.</p>
+                            <input id="teachersFileInput" type="file" accept=".xlsx,.xls" style="margin-bottom:8px;" />
+                            <button id="importTeachersBtn" class="submit-btn" style="width:100%; background-color: #059669;"><i class="fas fa-graduation-cap"></i> Akademik Kadro Yükle</button>
+                        </div>
+
+                </div>
+
+                <!-- Planlama -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Sınav Planlama</h3>
+                    <button id="runScheduler" class="btn btn-success">
+                        <i class="fas fa-rocket"></i> Otomatik Planla
+                    </button>
+                    <button id="clearExams" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Tüm Sınavları Sil
+                    </button>
+                </div>
+
+                <!-- Sınavlar Listesi -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-calendar-check"></i> Oluşturulan Sınavlar</h3>
+                    <div class="faculty-tabs" id="facultyTabs"></div>
+                    <div id="examsList" class="exams-schedule-container"></div>
+                </div>
+            </div>
+
+            <!-- ==================== BÖLÜM YETKİLİSİ PANELİ ==================== -->
+            <div id="deptPanel" class="panel" style="display: none;">
+                <h2 class="panel-title"><i class="fas fa-building"></i> Mühendislik ve Doğa Bilimleri Fakültesi</h2>
+                
+                <!-- Akademik Kadro Kartları -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-chalkboard-user"></i> Akademik Kadro</h3>
+                    <div id="muhTeachersContainer" class="teachers-grid"></div>
+                </div>
+
+                <!-- Dersler Tablosu -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-book"></i> Dersler</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead style="background-color: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                                <tr>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Ders Adı</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Bölüm</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Öğretim Üyesi</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Sınav Süresi</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Öğrenci Sayısı</th>
+                                </tr>
+                            </thead>
+                            <tbody id="muhCoursesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sınav Programı Tablosu -->
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-calendar-check"></i> Sınav Programı</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead style="background-color: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                                <tr>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Ders Adı</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Sınıf/Derslik</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Tarih</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Saat</th>
+                                    <th style="padding: 12px; text-align: left; font-weight: 600;">Öğretim Üyesi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="muhExamsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== HOCA PANELİ ==================== -->
+            <div id="teacherPanel" class="panel" style="display: none;">
+                <h2 class="panel-title"><i class="fas fa-chalkboard-user"></i> Hoca Paneli</h2>
+                
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-calendar-check"></i> Sınav Programım</h3>
+                    <p style="color: #6b7280; font-size: 14px; margin-bottom: 15px;">Aşağıda kendi ders(ler)imin sınav programı gösterilmektedir:</p>
+                    <div id="teacherExamsList" class="exams-table-container"></div>
+                </div>
+            </div>
+
+            <!-- ==================== ÖĞRENCİ PANELİ ==================== -->
+            <div id="studentPanel" class="panel" style="display: none;">
+                <h2 class="panel-title"><i class="fas fa-graduation-cap"></i> Öğrenci Paneli</h2>
+                
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-calendar-check"></i> Oluşturulan Sınav Programı</h3>
+                    <div class="faculty-tabs" id="studentFacultyTabs"></div>
+                    <div id="studentExamsList" class="exams-schedule-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modals -->
+    <div id="editDeptTeacherModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeEditDeptTeacherModal()">&times;</span>
+            <h3>Öğretim Üyesi Düzenle</h3>
+            <form id="editDeptTeacherForm">
+                <input type="hidden" id="editDeptTeacherId">
+                <div class="form-group">
+                    <label>Adı Soyadı</label>
+                    <input type="text" id="editDeptTeacherName" placeholder="Adı Soyadı" disabled style="background: #f0f0f0; cursor: not-allowed;">
+                </div>
+                <div class="form-group">
+                    <label>Fakülte</label>
+                    <input type="text" id="editDeptTeacherFaculty" placeholder="Fakülte" disabled style="background: #f0f0f0; cursor: not-allowed;">
+                </div>
+                <div class="form-group">
+                    <label>Unvan</label>
+                    <input type="text" id="editDeptTeacherTitle" placeholder="Unvan (ör: Prof. Dr.)">
+                </div>
+                <div class="form-group">
+                    <label>Müsait Günler</label>
+                    <input type="text" id="editDeptTeacherDays" placeholder="Mon,Tue,Wed,Thu,Fri">
+                </div>
+                <div class="form-actions" style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <button type="button" class="btn" onclick="closeEditDeptTeacherModal()">İptal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editTeacherModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeEditTeacherModal()">&times;</span>
+            <h3>Öğretim Üyesi Düzenle</h3>
+            <form id="editTeacherForm">
+                <input type="hidden" id="editTeacherId">
+                <input type="text" id="editTeacherName" placeholder="Adı Soyadı" required>                <select id="editTeacherDepartment">
+                    <option value="">-- Fakülte Seç --</option>
+                </select>                <input type="text" id="editTeacherDays" placeholder="Müsait Günler (Mon,Tue,Wed,Thu,Fri)">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <button type="button" class="btn" onclick="closeEditTeacherModal()"İptal</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editClassroomModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeEditClassroomModal()">&times;</span>
+            <h3>Derslik Düzenle</h3>
+            <form id="editClassroomForm">
+                <input type="hidden" id="editClassroomId">
+                <input type="text" id="editClassroomName" placeholder="Derslik Adı" required>
+                <input type="number" id="editClassroomCapacity" placeholder="Kapasite" required>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <button type="button" class="btn" onclick="closeEditClassroomModal()">İptal</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="editCourseModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeEditCourseModal()">&times;</span>
+            <h3>Ders Düzenle</h3>
+            <form id="editCourseForm">
+                <input type="hidden" id="editCourseId">
+                <input type="text" id="editCourseName" placeholder="Ders Adı" required>
+                <input type="text" id="editCourseCode" placeholder="Ders Kodu">
+                <select id="editCourseDepartment">
+                    <option value="">-- Fakülte Seç --</option>
+                </select>
+                <select id="editCourseTeacher">
+                    <option value="">-- Öğretim Üyesi Seç --</option>
+                </select>
+                <input type="number" id="editCourseStudentCount" placeholder="Öğrenci Sayısı">
+                <select id="editCourseExamDuration">
+                    <option value="30">30 dakika</option>
+                    <option value="60">60 dakika</option>
+                    <option value="90">90 dakika</option>
+                    <option value="120">120 dakika</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <button type="button" class="btn" onclick="closeEditCourseModal()">İptal</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

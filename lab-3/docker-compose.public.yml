@@ -1,0 +1,29 @@
+services:
+  backend:
+    image: tpisken/user-registration-backend:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=mysql://user:password@db:3306/myapp
+  
+  frontend:
+    image: tpisken/user-registration-frontend:latest
+    ports:
+      - "3000:80"
+  
+  db:
+    image: mysql:9.4
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
